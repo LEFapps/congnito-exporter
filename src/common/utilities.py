@@ -57,16 +57,19 @@ def write_to_file(filename, format, pool_data):
         for user in users:
             user_string = None
             attributes = user['Attributes']
+            attrs = {}
+            for item in attributes:
+                attrs[item["Name"]] = item["Value"]
             for header in csv_headers:
                 value = next((item['Value'] for item in attributes if item["Name"] == header), '')
                 if header == 'cognito:username':
-                    value = user['Username']
+                    value = attrs['email']
                 if (header.lower().endswith('enabled') or header.lower().endswith('verified')) and value == '':
                     value = 'false'
                 if user_string is None:
-                    user_string = value
+                    user_string = value.replace(",", "\\,")
                 else:
-                    user_string = user_string+","+value
+                    user_string = user_string+","+value.replace(",", "\\,")
             outfile.write(user_string+"\n")
     return
 
